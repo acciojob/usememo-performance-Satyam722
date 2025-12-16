@@ -1,13 +1,69 @@
 
-import React from "react";
-import './../styles/App.css';
+import React, { useState, useMemo } from "react";
+
+const generateTodos = () => {
+  const todos = [];
+  for (let i = 1; i <= 50; i++) {
+    todos.push({
+      id: i,
+      text: `Todo ${i}`,
+      completed: i <= 25 
+    });
+  }
+  return todos;
+};
+
+const slowFunction = () => {
+  let start = Date.now();
+  while (Date.now() - start < 300) {
+  }
+};
 
 const App = () => {
-  return (
-    <div>
-        {/* Do not remove the main div */}
-    </div>
-  )
-}
+  const [todos] = useState(generateTodos);
+  const [tab, setTab] = useState("all");
+  const [darkMode, setDarkMode] = useState(false);
 
-export default App
+  const filteredTodos = useMemo(() => {
+    slowFunction(); 
+
+    if (tab === "active") {
+      return todos.filter(todo => !todo.completed);
+    }
+    if (tab === "completed") {
+      return todos.filter(todo => todo.completed);
+    }
+    return todos;
+  }, [tab, todos]);
+
+  return (
+    <div className={`app ${darkMode ? "dark" : ""}`}>
+      <h2>useMemo Performance Todo App</h2>
+
+      <div className="controls">
+        <button onClick={() => setTab("all")}>All</button>
+        <button onClick={() => setTab("active")}>Active</button>
+        <button onClick={() => setTab("completed")}>Completed</button>
+
+        <button className="dark-btn" onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
+      </div>
+
+      <p className="note">Note: List is artificially slowed down!</p>
+
+      <ul>
+        {filteredTodos.map(todo => (
+          <li
+            key={todo.id}
+            className={todo.completed ? "completed" : ""}
+          >
+            {todo.text}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default App;
